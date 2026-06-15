@@ -1,0 +1,15 @@
+{
+  "rewrites": [
+    { "source": "/api/registry", "destination": "/api/registry.json" }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,OPTIONS" },
+        { "key": "Cache-Control", "value": "s-maxage=300, stale-while-revalidate" }
+      ]
+    }
+  ]
+}

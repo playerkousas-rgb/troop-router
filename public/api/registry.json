@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "plugins": [
+    {
+      "id": "troop_lib",
+      "title": "旅團圖書館",
+      "icon": "📚",
+      "url": "/modules/library",
+      "description": "全旅共用的圖書館系統，Tier 2 插件。",
+      "version": "1.0.0",
+      "embed": true,
+      "type": "jump",
+      "status": "active"
+    },
+    {
+      "id": "troop_dbs",
+      "title": "DBS 3.0 徽章系統",
+      "icon": "🎖️",
+      "url": "https://dbs3-troop.vercel.app/",
+      "description": "獨立徽章考核系統，Tier 3 插件，自動匹配旅團 ID。",
+      "version": "1.0.0",
+      "embed": false,
+      "type": "jump",
+      "status": "active"
+    }
+  ]
+}
