@@ -1,0 +1,37 @@
+{
+  "name": "ScoutSystem 旅團元件市場",
+  "version": "1.0.0",
+  "updatedAt": "2026-06-15",
+  "plugins": [
+    {
+      "id": "troop_lib",
+      "title": "旅團圖書館 (Tier 2)",
+      "icon": "📚",
+      "tier": 2,
+      "path": "/modules/library",
+      "roles": ["member", "parent", "leader", "admin"],
+      "needsTroopBackend": false,
+      "description": "公用圖書館模組，不佔用旅團本地資料表空間。"
+    },
+    {
+      "id": "troop_dbs",
+      "title": "DBS 3.0 徽章系統 (Tier 3)",
+      "icon": "🎖️",
+      "tier": 3,
+      "path": "https://dbs3-troop.vercel.app/",
+      "roles": ["member", "leader"],
+      "needsTroopBackend": true,
+      "description": "獨立考核系統。跳轉時 Portal 會自動帶入 ?t=旅團代碼。"
+    },
+    {
+      "id": "troop_finance",
+      "title": "旅團財務管家 (Tier 3)",
+      "icon": "💰",
+      "tier": 3,
+      "path": "https://finance-troop.vercel.app/",
+      "roles": ["admin", "leader"],
+      "needsTroopBackend": true,
+      "description": "獨立財務模塊，支持各旅團獨立帳目匹配。"
+    }
+  ]
+}
