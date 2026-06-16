@@ -87,6 +87,12 @@ data.plugins.forEach((p, i) => {
       warnings.push(`${tag}: 第3級 url 通常留空（網址放各單位 endpoints）；若要放說明頁請用 http(s)://`);
   }
 
+  if (p.scopes !== undefined) {
+    if (!Array.isArray(p.scopes) || !p.scopes.every((s) => ['district', 'troop'].includes(s)))
+      warnings.push(`${tag}: scopes 應為 ["district"] / ["troop"] / ["district","troop"]`);
+  } else {
+    warnings.push(`${tag}: 建議補上 scopes（適用範圍：district / troop / 兩者）`);
+  }
   if (p.status && !VALID_STATUS.includes(p.status)) warnings.push(`${tag}: status「${p.status}」非 active/disabled`);
   if (p.type && !VALID_TYPE.includes(p.type)) warnings.push(`${tag}: type「${p.type}」非 jump/builtin/resource`);
   if (p.embed !== undefined && typeof p.embed !== 'boolean') warnings.push(`${tag}: embed 應為 true/false`);
