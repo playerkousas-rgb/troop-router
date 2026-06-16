@@ -1,7 +1,253 @@
 <!DOCTYPE html>
-<html>
-<head><title>Service Portal</title></head>
-<body style="font-family:sans-serif; display:flex; justify-content:center; align-items:center; height:100vh; color:#ccc;">
-    <div>Service Hub Active</div>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Hub Console</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,"PingFang HK","Microsoft JhengHei",monospace,sans-serif;}
+  body{background:#0f172a;color:#cbd5e1;padding:20px;line-height:1.5;}
+  .wrap{max-width:920px;margin:0 auto;}
+  header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px;}
+  h1{font-size:18px;color:#e2e8f0;font-weight:600;}
+  .dot{width:9px;height:9px;border-radius:50%;background:#22c55e;display:inline-block;}
+  .meta{font-size:12px;color:#64748b;margin-bottom:18px;}
+  .meta button{margin-left:8px;}
+  .sec-title{font-size:13px;font-weight:700;margin:20px 0 8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .sec-title .count{font-size:11px;color:#94a3b8;}
+  .badge{font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px;}
+  .b-active{background:#064e3b;color:#6ee7b7;}
+  .b-hidden{background:#3f1d1d;color:#fca5a5;}
+  .b-t2{background:#0c4a6e;color:#7dd3fc;}
+  .b-t3{background:#4c1d95;color:#c4b5fd;}
+  .b-inst{background:#1e3a2f;color:#86efac;}
+  .b-guide{background:#422006;color:#fcd34d;}
+  .card{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .card.hidden{opacity:.6;border-style:dashed;}
+  .card.t3{border-left:3px solid #8b5cf6;}
+  .card.t2{border-left:3px solid #38bdf8;}
+  .row1{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  .ico{font-size:22px;}
+  .title{font-size:15px;font-weight:700;color:#f1f5f9;}
+  .id{font-size:11px;color:#64748b;background:#0f172a;border-radius:5px;padding:1px 7px;}
+  .ver{font-size:11px;color:#94a3b8;}
+  .tags{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap;}
+  .tag{font-size:10.5px;color:#94a3b8;background:#0f172a;border:1px solid #334155;border-radius:999px;padding:1px 8px;}
+  .tag.pass{color:#c4b5fd;border-color:#6d28d9;}
+  .desc{font-size:12.5px;color:#94a3b8;margin:6px 0;}
+  .url{font-size:12px;color:#7dd3fc;word-break:break-all;}
+  .url.empty-url{color:#64748b;font-style:italic;}
+  .actions{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap;}
+  button{background:#334155;color:#e2e8f0;border:none;border-radius:7px;padding:5px 11px;font-size:12px;cursor:pointer;}
+  button:hover{background:#475569;}
+  a.open{background:#1d4ed8;color:#fff;border-radius:7px;padding:5px 11px;font-size:12px;text-decoration:none;}
+  a.open:hover{background:#2563eb;}
+  .empty{color:#475569;font-size:13px;padding:10px 0;}
+  .err{background:#3f1d1d;color:#fca5a5;border:1px solid #7f1d1d;border-radius:8px;padding:12px;font-size:13px;}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#16a34a;color:#fff;
+    padding:9px 18px;border-radius:8px;font-size:13px;opacity:0;transition:.2s;pointer-events:none;}
+  .toast.show{opacity:1;}
+  details{margin-top:10px;}
+  summary{font-size:12px;color:#94a3b8;cursor:pointer;}
+  pre{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px;font-size:11.5px;
+    color:#cbd5e1;overflow-x:auto;margin-top:6px;}
+  .guide{background:#1e293b;border:1px solid #3f3008;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.75;}
+  .guide h3{font-size:13px;color:#fcd34d;margin:10px 0 4px;}
+  .guide h3:first-child{margin-top:0;}
+  .guide code{background:#0f172a;border-radius:4px;padding:1px 6px;color:#7dd3fc;font-size:12px;}
+  .guide table{border-collapse:collapse;margin:6px 0;width:100%;}
+  .guide th,.guide td{border:1px solid #334155;padding:5px 9px;font-size:12px;text-align:left;}
+  .guide th{background:#0f172a;color:#cbd5e1;}
+  .ep{font-size:11.5px;color:#94a3b8;margin-top:2px;}
+  .ep b{color:#c4b5fd;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="dot"></span><h1>Hub Console — 旅團轉駁器維護面板</h1>
+  </header>
+  <div class="meta" id="meta">載入中…</div>
+
+  <div id="content"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const REGISTRY = './api/registry.json';
+
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1400);
+}
+function copy(text, label){
+  navigator.clipboard.writeText(text).then(
+    ()=>toast((label||'已複製') + ' ✓'),
+    ()=>toast('複製失敗，請手動選取')
+  );
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function cardHtml(p, hidden){
+  const tier = (p.tier === 3) ? 3 : 2;
+  const tags = [];
+  tags.push('<span class="tag '+(tier===3?'b-t3':'b-t2')+'" style="font-weight:700">第'+tier+'級</span>');
+  tags.push('<span class="tag">'+esc(p.type||'jump')+'</span>');
+  tags.push('<span class="tag">'+(p.embed?'內嵌':'新分頁')+'</span>');
+  tags.push('<span class="tag '+(tier===3?'pass':'')+'">'+(tier===3?'各單位自部署':'共用系統')+'</span>');
+  const jsonSnippet = JSON.stringify(p, null, 2);
+  const hasUrl = p.url && String(p.url).trim() !== '';
+  const urlLine = tier===3
+    ? '<div class="url empty-url">第3級：網址跟著各旅團走，見下方「接入總覽」的 endpoints</div>'
+    : '<div class="url">'+esc(p.url||'')+'</div>';
+  return `
+    <div class="card t${tier} ${hidden?'hidden':''}">
+      <div class="row1">
+        <span class="ico">${esc(p.icon||'🧩')}</span>
+        <span class="title">${esc(p.title||'(未命名)')}</span>
+        <span class="id">${esc(p.id||'?')}</span>
+        ${p.version?'<span class="ver">v'+esc(p.version)+'</span>':''}
+        <span class="tags">${tags.join('')}</span>
+      </div>
+      <div class="desc">${esc(p.description||'')}</div>
+      ${urlLine}
+      <div class="actions">
+        ${hasUrl?'<a class="open" href="'+esc(p.url)+'" target="_blank" rel="noopener">↗ 開啟</a>':''}
+        ${hasUrl?'<button onclick=\'copy('+JSON.stringify(p.url||"")+', "已複製網址")\'>複製網址</button>':''}
+        <button onclick='copy(${JSON.stringify(p.id||"")}, "已複製 id")'>複製 id</button>
+        <button onclick='copy(${JSON.stringify(jsonSnippet)}, "已複製 JSON")'>複製 JSON</button>
+      </div>
+      <details><summary>JSON 片段</summary><pre>${esc(jsonSnippet)}</pre></details>
+    </div>`;
+}
+
+function section(title, badgeClass, list){
+  let html = '<div class="sec-title"><span class="badge '+badgeClass+'">'+title+'</span> <span class="count">('+list.length+')</span></div>';
+  html += list.length ? list.map(p=>cardHtml(p, String(p.status||'active').toLowerCase()==='disabled')).join('') : '<div class="empty">（無）</div>';
+  return html;
+}
+
+function installsOverview(data){
+  const units = Array.isArray(data.units) ? data.units : [];
+  const ulabel = esc(data.unitLabel || '單位');
+  const pmap = {};
+  (data.plugins||[]).forEach(p=>{ pmap[p.id] = p; });
+
+  function chip(u, pid){
+    const p = pmap[pid];
+    const ico = p ? esc(p.icon||'🧩') : '⚠️';
+    const name = p ? esc(p.title) : esc(pid)+'（未知）';
+    const tier = p && p.tier===3 ? 3 : 2;
+    let extra = '';
+    if (tier===3){
+      const ep = u.endpoints && u.endpoints[pid];
+      extra = ep ? '<div class="ep"><b>↗ '+esc(ep)+'</b></div>'
+                 : '<div class="ep" style="color:#fca5a5">⚠ 缺該'+ulabel+'的 endpoint URL</div>';
+    }
+    return '<div style="margin:3px 0"><span class="tag '+(tier===3?'pass':'')+'">'+ico+' '+name+' · 第'+tier+'級</span>'+extra+'</div>';
+  }
+
+  let html = '<div class="sec-title"><span class="badge b-inst">接入總覽</span> 各'+ulabel+'已接入的插件 <span class="count">('+units.length+' 個'+ulabel+')</span></div>';
+  if (!units.length){ html += '<div class="empty">（尚未登記任何'+ulabel+'接入）</div>'; }
+  else {
+    html += '<div class="card">';
+    units.forEach(u=>{
+      const ins = Array.isArray(u.installs)?u.installs:[];
+      html += '<div style="display:flex;gap:12px;align-items:flex-start;padding:9px 0;border-bottom:1px solid #334155;flex-wrap:wrap;">'
+        + '<div style="min-width:120px"><span class="id">'+esc(u.id)+'</span> <span class="title" style="font-size:13px">'+esc(u.name||'')+'</span></div>'
+        + '<div style="flex:1;min-width:200px">'+(ins.length?ins.map(pid=>chip(u,pid)).join(''):'<span class="empty" style="padding:0">（未接入）</span>')+'</div>'
+        + '</div>';
+    });
+    html += '</div>';
+
+    // 反向：每個插件被哪些單位接入
+    html += '<div class="sec-title"><span class="badge b-inst">插件普及度</span> 每個插件被哪些'+ulabel+'接入</div><div class="card">';
+    (data.plugins||[]).forEach(p=>{
+      const who = units.filter(u=>Array.isArray(u.installs)&&u.installs.includes(p.id));
+      html += '<div style="padding:7px 0;border-bottom:1px solid #334155;">'
+        + '<span class="ico" style="font-size:16px">'+esc(p.icon||'🧩')+'</span> '
+        + '<span class="title" style="font-size:13px">'+esc(p.title)+'</span> '
+        + '<span class="tag '+(p.tier===3?'b-t3':'b-t2')+'" style="font-weight:700">第'+(p.tier===3?3:2)+'級</span> '
+        + '<span class="ver">'+who.length+' 個'+ulabel+'</span>'
+        + (who.length?'<div class="desc" style="margin:4px 0 0">'+who.map(u=>esc(u.id)+(u.name?' '+esc(u.name):'')).join('、')+'</div>':'')
+        + '</div>';
+    });
+    html += '</div>';
+  }
+  return html;
+}
+
+function guide(data){
+  const ulabel = esc(data.unitLabel || '單位');
+  return `
+  <div class="sec-title"><span class="badge b-guide">維護指引</span> 日後要做什麼（簡化版）</div>
+  <div class="guide">
+    <h3>① 新增第2級（即插即用）插件 — 你部署一份共用，大家直接用</h3>
+    1. 你部署好插件，拿到一條共用網址。<br>
+    2. 在 <code>plugins</code> 加一段：<code>tier:2</code>、<code>needsUnitBackend:false</code>、填 <code>url</code>。<br>
+    3. <code>npm run validate</code> → <code>git push</code>。${ulabel}啟用即用。
+
+    <h3>② 新增第3級（需${ulabel}自設後台）插件 — 各${ulabel}自部署一份（接法B）</h3>
+    1. 你把插件做成可被各${ulabel}自行部署的範本。<br>
+    2. 在 <code>plugins</code> 先登記「插件存在」：<code>tier:3</code>、<code>needsUnitBackend:true</code>、<code>url</code> 留空。<br>
+    3. <code>validate</code> → <code>push</code>。（此時還沒有${ulabel}能用，要等下一步）
+
+    <h3>③ 某${ulabel}要用第3級插件（例：82 要用 troop_dbs）</h3>
+    1. 該${ulabel}用<b>自己的帳號</b>部署一份 → 給你它的網址（額度算在他頭上，不佔你的）。<br>
+    2. 你在 <code>units</code> 該${ulabel}的物件：<code>installs</code> 加插件 id、<code>endpoints</code> 填它的網址。<br>
+    3. <code>validate</code> → <code>push</code>。
+
+    <h3>④ 下架 / 隱藏插件</h3>
+    把該插件 <code>status</code> 改成 <code>"disabled"</code> → push。${ulabel}市集即不再顯示。
+
+    <h3>⑤ 緊急停服 / 搬家</h3>
+    全停：Vercel 刪專案，或把 registry 改成 <code>{"schema":3,"plugins":[],"units":[]}</code> 再 push。<br>
+    搬家：新 repo / 新 Vercel 部署 → 拿新 <code>/api/registry</code> → 各${ulabel} Portal 改 <code>REGISTRY_URL</code> → 舊網址作廢。
+
+    <h3>分級速記</h3>
+    <table>
+      <tr><th></th><th>第2級</th><th>第3級</th></tr>
+      <tr><td>誰部署</td><td>你（1份共用）</td><td>各${ulabel}自己</td></tr>
+      <tr><td>網址放哪</td><td>plugins.url</td><td>units.endpoints[插件id]</td></tr>
+      <tr><td>佔誰額度</td><td>你</td><td>各${ulabel}</td></tr>
+      <tr><td>能否即用</td><td>啟用即用</td><td>該${ulabel}先自部署+給URL</td></tr>
+    </table>
+    <p style="color:#475569;font-size:11px;margin-top:8px">本面板只讀取 /api/registry.json 顯示，不會修改。轉駁器純靜態、不追蹤；units 為手動維護的紀錄表。此頁 noindex，僅供自己維護。</p>
+  </div>`;
+}
+
+function render(data){
+  const plugins = Array.isArray(data.plugins) ? data.plugins : [];
+  const active = plugins.filter(p => String(p.status||'active').toLowerCase() !== 'disabled');
+  const hidden = plugins.filter(p => String(p.status||'active').toLowerCase() === 'disabled');
+  const t2 = active.filter(p => p.tier !== 3);
+  const t3 = active.filter(p => p.tier === 3);
+
+  document.getElementById('meta').innerHTML =
+    'schema ' + esc(data.schema) + ' · scope ' + esc(data.scope||'-') + ' · 更新 ' + esc(data.updated||'-') +
+    ' · 共 ' + plugins.length + ' 個（第2級 ' + t2.length + ' / 第3級 ' + t3.length + '）' +
+    '<button onclick="location.reload()">重新整理</button>';
+
+  let html = '';
+  html += section('第 2 級 · 即插即用（共用系統）', 'b-t2', t2);
+  html += section('第 3 級 · 需單位自設後台（各單位一條URL）', 'b-t3', t3);
+  html += section('隱藏 / 停用', 'b-hidden', hidden);
+  html += installsOverview(data);
+  html += guide(data);
+  document.getElementById('content').innerHTML = html;
+}
+
+fetch(REGISTRY + '?t=' + Date.now())
+  .then(r => { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+  .then(render)
+  .catch(e => {
+    document.getElementById('meta').textContent = '';
+    document.getElementById('content').innerHTML =
+      '<div class="err">讀取 registry.json 失敗：'+esc(e.message)+'<br>請確認檔案路徑與 JSON 格式正確。</div>';
+  });
+</script>
 </body>
 </html>

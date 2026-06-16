@@ -1,7 +1,10 @@
 {
   "name": "troop-service-hub",
-  "version": "1.0.0",
+  "version": "3.0.0",
+  "private": true,
+  "description": "旅團轉駁中心（registry：第2級共用 / 第3級各單位自部署接法B + 接入名單）。靜態部署於 Vercel。",
   "scripts": {
+    "dev": "npx serve public",
     "validate": "node scripts/validate.js"
   }
 }

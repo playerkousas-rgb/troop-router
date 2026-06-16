@@ -1,27 +1,80 @@
 {
-  "version": "1.0.0",
+  "schema": 3,
+  "hub": "troop-service-hub",
+  "scope": "troop",
+  "updated": "2026-06-16",
+  "unitParam": "t",
+  "unitLabel": "旅團",
+  "tiers": {
+    "2": { "label": "即插即用元件", "needsUnitBackend": false, "shared": true, "desc": "你部署一份共用系統，所有旅團啟用即用，不佔旅團額度。" },
+    "3": { "label": "需單位自設後台", "needsUnitBackend": true, "shared": false, "desc": "每個旅團自部署一份（接法B：各單位一條URL），額度算各旅團頭上，不佔你額度。" }
+  },
   "plugins": [
     {
       "id": "troop_lib",
       "title": "旅團圖書館",
       "icon": "📚",
-      "url": "/modules/library",
-      "description": "全旅共用的圖書館系統，Tier 2 插件。",
+      "url": "https://scout-circulars.vercel.app/",
+      "description": "全旅共用的圖書館 / 通告系統，啟用即用。",
       "version": "1.0.0",
+      "tier": 2,
       "embed": true,
       "type": "jump",
-      "status": "active"
+      "status": "active",
+      "needsUnitBackend": false,
+      "roles": ["member", "parent", "leader", "admin"]
     },
     {
       "id": "troop_dbs",
       "title": "DBS 3.0 徽章系統",
       "icon": "🎖️",
-      "url": "https://dbs3-troop.vercel.app/",
-      "description": "獨立徽章考核系統，Tier 3 插件，自動匹配旅團 ID。",
-      "version": "1.0.0",
+      "url": "",
+      "description": "獨立徽章考核系統。第3級：每個旅團自部署一份，URL 登記在 units.endpoints。",
+      "version": "3.0.0",
+      "tier": 3,
       "embed": false,
       "type": "jump",
-      "status": "active"
+      "status": "active",
+      "needsUnitBackend": true,
+      "roles": ["member", "leader"]
+    },
+    {
+      "id": "troop_finance",
+      "title": "旅團財務管家",
+      "icon": "💰",
+      "url": "",
+      "description": "獨立財務模塊，各旅團獨立帳目。第3級：每個旅團自部署一份。",
+      "version": "1.0.0",
+      "tier": 3,
+      "embed": false,
+      "type": "jump",
+      "status": "active",
+      "needsUnitBackend": true,
+      "roles": ["admin", "leader"]
+    }
+  ],
+  "units": [
+    {
+      "id": "82",
+      "name": "第82旅",
+      "installs": ["troop_lib", "troop_dbs"],
+      "endpoints": {
+        "troop_dbs": "https://dbs-82.vercel.app"
+      }
+    },
+    {
+      "id": "83",
+      "name": "第83旅",
+      "installs": ["troop_lib", "troop_finance"],
+      "endpoints": {
+        "troop_finance": "https://finance-83.vercel.app"
+      }
+    },
+    {
+      "id": "104",
+      "name": "第104旅",
+      "installs": ["troop_lib"],
+      "endpoints": {}
     }
   ]
 }
