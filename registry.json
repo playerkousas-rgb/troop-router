@@ -23,15 +23,15 @@
       "needsTroopBackend": true,
       "description": "獨立考核系統。跳轉時 Portal 會自動帶入 ?t=旅團代碼。"
     },
-    {
-      "id": "troop_finance",
-      "title": "旅團財務管家 (Tier 3)",
-      "icon": "💰",
-      "tier": 3,
-      "path": "https://finance-troop.vercel.app/",
-      "roles": ["admin", "leader"],
-      "needsTroopBackend": true,
-      "description": "獨立財務模塊，支持各旅團獨立帳目匹配。"
-    }
+   {
+  "id": "vs_badge_tracker",
+  "title": "深資童軍進度追蹤 (Tier 3)",
+  "icon": "🔥",
+  "tier": 3,
+  "path": "https://vsbadge.vercel.app/",
+  "roles": ["member", "leader"],
+  "needsTroopBackend": true,
+  "description": "基於第11版訓練綱要的四級進度追蹤系統。支援獨立使用或接入主系統。"
+}
   ]
 }
