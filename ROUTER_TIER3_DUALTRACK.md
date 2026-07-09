@@ -166,6 +166,17 @@ Vercel 自動重新部署，旅團立即可用。
 
 ## Scout Admin APP 功能說明
 
+> ⚠️ **給其他開發者 / Agent 看的重要說明**
+>
+> **Scout Admin APP（https://scout-admin-blue.vercel.app/）是純靜態 HTML，沒有任何後端 API 端點。**
+> 不存在 `/api/submit`、`/api/register` 或任何伺服器路由。
+>
+> 申請的唯一接收端是 **Google Apps Script Web App**，URL 已固定寫死在申請表單代碼內：
+> ```
+> https://script.google.com/macros/s/AKfycbxj5BDDGgjs559smkK4Z5aYImWYeXbN5af8U1ObON0z9WnsN6QJW4I1XWolhs5kQ_H-UQ/exec
+> ```
+> 這是唯一接收端點，**不需要、也不應該修改任何 `ADMIN_API_URL` 類的變數。**
+
 > 管理員用的後台工具，統一管理所有旅團申請。
 
 | 分頁 | 功能 |

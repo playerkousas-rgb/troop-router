@@ -208,7 +208,7 @@ Vercel 環境變數 / 配置表 / 代理 API
 
 表單提交後：
 - 自動寫入管理員的 **Google Sheet「申請記錄」**工作表
-- 自動寄 Email 通知你（`playerkousas@hotmail.com`）
+- 自動寄 Email 通知你（信箱設定在 Apps Script `ADMIN_EMAIL` 變數）
 - 你到 **Scout Admin APP**（https://scout-admin-blue.vercel.app/）查看
 
 #### C-2：管理員在 Scout Admin APP 處理
@@ -356,6 +356,17 @@ if (e.parameter.u !== Config.TROOP_CODE) {
 
 ## 九、旅團接入通知系統（Scout Admin APP）★
 
+> ⚠️ **給其他開發者 / Agent 看的重要說明**
+>
+> **Scout Admin APP（https://scout-admin-blue.vercel.app/）是純靜態 HTML，沒有任何後端 API 端點。**
+> 不存在 `/api/submit`、`/api/register` 或任何伺服器路由。
+>
+> 申請的唯一接收端是 **Google Apps Script Web App**，URL 已固定寫死在申請表單代碼內：
+> ```
+> https://script.google.com/macros/s/AKfycbxj5BDDGgjs559smkK4Z5aYImWYeXbN5af8U1ObON0z9WnsN6QJW4I1XWolhs5kQ_H-UQ/exec
+> ```
+> 這是唯一接收端點，**不需要、也不應該修改任何 `ADMIN_API_URL` 類的變數。**
+
 > 這是整套系統的「申請接入」機制，所有第3級元件共用同一套流程。
 
 ### 系統組成
@@ -376,7 +387,7 @@ if (e.parameter.u !== Config.TROOP_CODE) {
 Apps Script Web App
       │
       ├── 寫入 Google Sheet「申請記錄」工作表
-      └── 寄 Email 通知 playerkousas@hotmail.com
+      └── 寄 Email 通知管理員
                   │
                   ▼
       管理員收到 Email → 到 Scout Admin APP 查看
