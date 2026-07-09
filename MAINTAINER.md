@@ -12,10 +12,10 @@
 
 ```
 你開發新系統 ──► 在 registry.json 加一段 ──► 推上 GitHub ──► Vercel 自動部署
-                                                                    │
-        各旅團 Portal 讀 /api/registry ◄────────────────────────────┘
-                                                                    │
-        旅團在「外掛市集」看到 ──► 自行決定安裝 / 給誰看
+      │
+      各旅團 Portal 讀 /api/registry ◄────────────────────────────┘
+      │
+      旅團在「外掛市集」看到 ──► 自行決定安裝 / 給誰看
 ```
 
 * * *
@@ -33,7 +33,7 @@
 - **第3級（接法B）**：你部署一份**共用前端**（Vercel），每個旅團只須部署自己的**後端**（如 GAS / Google Sheet / 資料庫）。前端的 Vercel 專案透過私密方式（環境變數 / 配置表）內部連接到各旅團的後端。`plugins.url` 留空，`units.endpoints` 填你的共用前端網址。
 
 > 為何用接法B：後端資料量大、需要獨立帳號、或後端免費（GAS）但前端統一控制。前端共用由你維護更新，後端各旅團自設不佔你額度。
-> 
+>
 > 第3級的**前端**是 1 份共用（你部署），不是每個旅團各自部署一份。旅團只須建後端。
 
 * * *
@@ -43,12 +43,12 @@
 ```
 troop-router/
   public/
-    index.html            維護面板（noindex；分級顯示 + 接入總覽 + 內建維護指引）
-    api/registry.json     ★ 你唯一要維護的檔案（plugins + units）
-  scripts/validate.js     驗證格式 / 分級一致 / 第3級 endpoint 是否齊全
-  vercel.json             把 /api/registry 包成乾淨 API + CORS + 快取
+    index.html        維護面板（noindex；分級顯示 + 接入總覽 + 內建維護指引）
+  api/registry.json   ★ 你唯一要維護的檔案（plugins + units）
+  scripts/validate.js 驗證格式 / 分級一致 / 第3級 endpoint 是否齊全
+  vercel.json         把 /api/registry 包成乾淨 API + CORS + 快取
   package.json
-  MAINTAINER.md           本檔
+  MAINTAINER.md       本檔
 ```
 
 對外端點（部署後）：`https://你的專案.vercel.app/api/registry` ← 各旅團 Portal 的 `REGISTRY_URL` 填這個。
@@ -61,11 +61,11 @@ troop-router/
 
 ```
 你部署 1 份完整系統（前端 + 後端）
-    │
-    ▼ 所有旅團共用這條 URL
+      │
+      ▼ 所有旅團共用這條 URL
 各旅團 Portal 帶 ?u=82 或 ?u=83 進入
-    │
-    ▼ 同一套後台用 ?u= 分流資料
+      │
+      ▼ 同一套後台用 ?u= 分流資料
 你的共用後端（Vercel / GAS / DB）
 ```
 
@@ -77,7 +77,7 @@ troop-router/
       "url": "https://scout-circulars.vercel.app/" }
   ],
   "units": [
-    { "id": "82", "installs": ["troop_lib"] }  // 只需 install，不需要 endpoints
+    { "id": "82", "installs": ["troop_lib"] }
   ]
 }
 ```
@@ -92,14 +92,14 @@ troop-router/
 
 ```
 你部署 1 份共用前端（Vercel）
-    │
-    ▼ 所有旅團共用這個 URL
+      │
+      ▼ 所有旅團共用這個 URL
 各旅團 Portal 帶 ?u=82 進入 → 打開你的共用前端
-    │
-    ▼ 前端內部透過私密方式找到 82 的後端
+      │
+      ▼ 前端內部透過私密方式找到 82 的後端
 Vercel 環境變數 / 配置表 / 代理 API
-    │
-    ▼ 內部連接（用戶永遠看不到）
+      │
+      ▼ 內部連接（用戶永遠看不到）
 82 旅自己的後端（GAS / Sheet / DB）
 83 旅自己的後端（GAS / Sheet / DB）
 ```
@@ -109,7 +109,7 @@ Vercel 環境變數 / 配置表 / 代理 API
 {
   "plugins": [
     { "id": "troop_attendance", "tier": 3, "needsUnitBackend": true,
-      "url": "" }  // 第3級 plugins.url 留空！
+      "url": "" }
   ],
   "units": [
     { "id": "82", "name": "第82旅",
@@ -171,7 +171,7 @@ Vercel 環境變數 / 配置表 / 代理 API
 
 1. 你開發**共用前端**（Vercel 靜態/SSR），並設計好「如何內部連接各旅團後端」的機制（如 Vercel 環境變數、代理 API）。
 2. 寫好「旅團後端部署教學」（旅團只須建後端，不碰前端）。
-3. `plugins` 先登記「插件存在」（ **url 留空**）：
+3. `plugins` 先登記「插件存在」（**url 留空**）：
 
 ```json
 {
@@ -192,14 +192,35 @@ Vercel 環境變數 / 配置表 / 代理 API
 
 ---
 
-### C) 某旅團要用某個第3級插件（例：82 旅要用 troop_attendance）
+### C) 某旅團要用某個第3級插件
 
-1. **82 旅** 按你的教學部署自己的後端（如新建 GAS + Sheet）→ 交給你**後端 URL**，例如 `https://script.google.com/macros/s/.../exec`。
-2. 你更新**共用前端**的內部配置（如 Vercel 環境變數），把 82 旅的後端 URL 私密登記進去：
-   ```
-   GAS_MAP = {"82":"https://script.google.com/...exec", ...}
-   ```
-3. 你在 `units` 找到 82（沒有就新增），更新 `installs` 與 `endpoints`：
+#### C-1：旅團提交申請
+
+旅團透過各自 APP 內嵌的**接入申請表單**提交資料：
+
+| 欄位 | 說明 |
+|------|------|
+| 旅團號 | 如 `0082` |
+| 旅團名稱 | 如 `第82旅` |
+| Apps Script URL | 旅團部署的後端網址 |
+| API Key | 旅團執行 `initializeSheets()` 後自動生成 |
+| 接入 APP | 選擇 vsbadge / scoutsystem / 兩者 |
+
+表單提交後：
+- 自動寫入管理員的 **Google Sheet「申請記錄」**工作表
+- 自動寄 Email 通知你（`playerkousas@hotmail.com`）
+- 你到 **Scout Admin APP**（https://scout-admin-blue.vercel.app/）查看
+
+#### C-2：管理員在 Scout Admin APP 處理
+
+1. 到「📥 新申請」分頁查看待處理申請
+2. 確認資料正確後，點擊「✅ 標記完成」
+3. 展開申請卡片，複製所需格式：
+   - **vsbadge** → 複製 `troops.json` 片段 → 貼入 vsbadge repo
+   - **scoutsystem** → 複製 `troops.ts` 片段 → 貼入 `lib/troops.ts`
+   - **scoutsystem** → 複製 Vercel 環境變數 → 到 Vercel Dashboard 設定
+
+#### C-3：更新 Registry（若有需要）
 
 ```json
 {
@@ -245,7 +266,7 @@ Vercel 環境變數 / 配置表 / 代理 API
 
 | 欄位 | 必填 | 說明 |
 | --- | --- | --- |
-| `id` | ✓ | 唯一代號（英數 - _），永不更名（= cardId） |
+| `id` | ✓ | 唯一代號（英數 - \_），永不更名（= cardId） |
 | `title` | ✓ | 顯示名稱 |
 | `icon` | | 表情符號，如 📝 |
 | `url` | tier2 必填，tier3 留空 | **第2級**：填共用網址。**第3級**：留空（網址在 `units.endpoints`） |
@@ -314,34 +335,144 @@ if (e.parameter.u !== Config.TROOP_CODE) {
 
 ```
 開始設計新插件
-    │
-    ▼
+      │
+      ▼
 所有旅團共用同一套資料？
-    │
-    ├── 是（如通告、圖書館）→ 選 第2級：你部署1份完整共用系統
-    │
-    └── 否（每個旅團獨立資料）
-        │
-        ▼
-        選 第3級：接法B（你部署共用前端 + 各旅團自設後端）
-        │
-        ├── 你控制前端 Vercel 專案
-        ├── 寫好旅團後端部署教學（只建後端，不交前端）
-        ├── 後端 URL 由你內部管理（環境變數），不進 Registry
-        └── 旅團完成後交後端 URL 給你，你登記到環境變數
+      │
+      ├── 是（如通告、圖書館）→ 選 第2級：你部署1份完整共用系統
+      │
+      └── 否（每個旅團獨立資料）
+            │
+            ▼
+            選 第3級：接法B（你部署共用前端 + 各旅團自設後端）
+            │
+            ├── 你控制前端 Vercel 專案
+            ├── 寫好旅團後端部署教學（只建後端，不交前端）
+            ├── 後端 URL 由你內部管理（環境變數），不進 Registry
+            └── 旅團完成後經 Scout Admin APP 申請接入（見第九節）
 ```
 
----
+* * *
 
-## 開放市場哲學（請記住）
+## 九、旅團接入通知系統（Scout Admin APP）★
 
-這個轉駁器的存在目的不是讓我們自己控制所有功能。
+> 這是整套系統的「申請接入」機制，所有第3級元件共用同一套流程。
 
-而是創造一個市場，讓**任何人**寫插件。
+### 系統組成
 
-區和旅團如果覺得某個插件好用，他們就會自己把插件插回他們的主系統。
+| 組件 | 說明 | 連結 |
+|------|------|------|
+| Scout Admin APP | 管理員查看申請、產生 JSON/TS 的後台 | https://scout-admin-blue.vercel.app/ |
+| Apps Script Web App | 接收旅團申請、寫入 Sheet、寄 Email | 已部署（你的管理 Google Sheet） |
+| 前端申請表單 | 嵌入各旅團 APP 的申請介面 | 從 Apps Script 分頁複製 |
 
-最終效果：每個單位的主系統，都會越來越貼合他們自己真正的需要。
+### 完整流程
 
-這才是我們想建立的生態。
+```
+旅團 APP 內嵌申請表單
+      │ 填寫：旅團號、旅團名稱、Apps Script URL、API Key、接入APP
+      │
+      ▼ POST
+Apps Script Web App
+      │
+      ├── 寫入 Google Sheet「申請記錄」工作表
+      └── 寄 Email 通知 playerkousas@hotmail.com
+                  │
+                  ▼
+      管理員收到 Email → 到 Scout Admin APP 查看
+                  │
+                  ▼
+      「📥 新申請」分頁：找到待處理申請
+                  │
+                  ├── 驗證資料（可選：用 health + apiKey 測試後端）
+                  ├── 點「✅ 標記完成」
+                  └── 展開申請卡 → 複製輸出
+                              │
+                              ├── vsbadge → troops.json 片段（複製貼入 repo）
+                              ├── scoutsystem → troops.ts 片段（複製貼入 lib/troops.ts）
+                              └── scoutsystem → Vercel 環境變數（設定 TROOP_{ID}_APIKEY）
+                              │
+                              ▼
+                        git push → Vercel 自動部署 → 旅團立即可用
+```
 
+### 各 APP 需要的設定格式
+
+#### vsbadge — `troops.json`
+```json
+{
+  "troops": {
+    "0082": {
+      "name": "第 82 旅",
+      "backend": "https://script.google.com/macros/s/XXXXXX/exec",
+      "apikey": "vs_xxxxxxxxxxxxxxxxxxxxxxxx"
+    }
+  }
+}
+```
+
+#### scoutsystem — `lib/troops.ts`
+```typescript
+{
+  key: 'troop_0082',
+  id: '0082',
+  name: '第82旅',
+  webAppUrl: 'https://script.google.com/macros/s/XXXXXX/exec',
+  // API Key → Vercel env: TROOP_0082_APIKEY
+  status: 'active',
+},
+```
+
+#### scoutsystem — Vercel 環境變數
+```
+Name:  TROOP_0082_APIKEY
+Value: ak_xxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+### 將申請表單加入新 APP
+
+開發新的第3級元件時，在 APP 的設定頁面加入申請表單。
+從 Scout Admin APP 的「📜 Apps Script」分頁複製「前端申請表單代碼」，直接貼入即可。
+
+**表單已預設連接到 Apps Script Web App，無需修改 URL。**
+
+### 申請表單收集的欄位
+
+| 欄位 | 必填 | 說明 |
+|------|------|------|
+| 旅團號 | ✅ | 如 `0082` |
+| 旅團名稱 | ✅ | 如 `第 82 旅` |
+| Apps Script URL | ✅ | 旅團部署的後端網址 |
+| API Key | ✅ | 旅團執行 `initializeSheets()` 後自動生成 |
+| 接入 APP | 選填 | vsbadge / scoutsystem / 兩者 |
+| 備注 | 選填 | 特殊情況說明 |
+
+* * *
+
+## 十、元件開發者完整檢查清單（新增）
+
+開發第3級元件時，確認以下全部完成：
+
+**後端（Apps Script）**
+- [ ] `initializeSheets()` 自動建立所需工作表
+- [ ] `getApiKey()` 自動生成並儲存 API Key（格式：`vs_` 或 `ak_` + 24位隨機字元）
+- [ ] `showApiKey()` 讓旅團可以查看自己的 API Key
+- [ ] 所有 API 端點驗證 `?u=` 和 `apiKey` 參數
+- [ ] `doGet` 支援 `action=health` 健康檢查端點
+
+**前端**
+- [ ] 有旅團選擇功能（沒有 `u` 參數時顯示）
+- [ ] 從 `troops.json` 讀取旅團列表
+- [ ] 根據 `u` 參數自動查找 `backend` + `apikey`
+- [ ] 支援從 URL 參數讀取 `u`、`role`、`ymis`（主系統帶入時）
+- [ ] `embed=1` 時隱藏頂部標題列
+
+**申請接入**
+- [ ] APP 設定頁面嵌入申請表單（從 Scout Admin APP 複製前端代碼）
+- [ ] 申請表單已連接到 Apps Script Web App
+
+**文件**
+- [ ] `HOW_TO_ADD_TROOP.md`：管理員操作說明
+- [ ] `DEPLOY_GUIDE_FOR_TROOPS.md`：旅團部署教學（只建後端）
+- [ ] README 清楚說明兩種使用方式（獨立 / 接入主系統）
+- [ ] `ROUTER_TIER3_DUALTRACK.md`：雙軌制規範（可沿用此份）
